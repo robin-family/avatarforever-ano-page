@@ -356,7 +356,7 @@ h1 em { color: var(--muted); font-style: normal; font-weight: 520; }
 }
 
 .tab-button:hover { color: var(--ink); border-color: rgba(255,255,255,.26); }
-.tab-button[aria-selected="true"] { border-color: rgba(255,78,98,.5); background: rgba(255,78,98,.13); color: var(--ink); }
+.tab-button[aria-selected="true"], .tab-button[aria-pressed="true"] { border-color: rgba(255,78,98,.5); background: rgba(255,78,98,.13); color: var(--ink); }
 .tab-count { margin-left: 5px; color: #777d8a; font-variant-numeric: tabular-nums; }
 
 .general-note {
@@ -419,6 +419,15 @@ h1 em { color: var(--muted); font-style: normal; font-weight: 520; }
 .comparison-header > div:first-child { display: flex; align-items: center; gap: 14px; }
 .comparison-header h3 { margin-bottom: 0; font-size: 23px; }
 .index-label { color: var(--red); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+
+.comparison-note { color: var(--muted); font-size: 14px; }
+.comparison-transport { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; }
+.comparison-transport[hidden] { display: none; }
+.comparison-timeline { display: flex; flex: 1 1 240px; align-items: center; gap: 10px; }
+.comparison-timeline input { flex: 1; min-width: 0; accent-color: var(--red); }
+.comparison-timeline span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.comparison-audio { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.comparison-audio select { max-width: 100%; padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
 
 .extended-video {
   overflow: hidden;

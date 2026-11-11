@@ -21,6 +21,15 @@ const METHOD_META = {
 
 const METHOD_ORDER = ["our", "our_cache", "inftalk", "liveavatar", "omni", "soulx"];
 
+const REBUTTAL_METHODS = {
+  our: { label: "Avatar-Forever", detail: "Decoupled DMD + RRT" },
+  dmd_only: { label: "DMD only", detail: "Few-step distillation only" },
+  fm_only: { label: "FM only", detail: "Flow matching only" },
+  d2rrt: { label: "DMD → RRT", detail: "Sequential training" },
+  rrt2d: { label: "RRT → DMD", detail: "Sequential training" },
+  soulx: { label: "Soul-X", detail: "Baseline" },
+};
+
 const HERO_CASES = [
   {
     title: "Talking · Case 06",
@@ -269,6 +278,137 @@ function renderExtended() {
     </button>`;
 }
 
+function rebuttalItems(group, methods) {
+  return methods.map((method) => {
+    const item = state.manifest.find((entry) => entry.group === group && entry.method === method);
+    if (!item) throw new Error(`Missing ${group} video for ${method}`);
+    return { ...item, ...REBUTTAL_METHODS[method] };
+  });
+}
+
+function renderRebuttal() {
+  const ablation = rebuttalItems("ablation_decouple", ["our", "dmd_only", "fm_only", "d2rrt", "rrt2d"]);
+  document.querySelector("#ablation-grid").innerHTML = ablation
+    .map((item) => videoCard(item, item.label, `${item.detail} · ${formatDuration(item.duration)}`, {
+      ours: item.method === "our",
+    }))
+    .join("");
+
+  const items = rebuttalItems("10min_compare", ["our", "dmd_only", "soulx"]);
+  const grid = document.querySelector("#rebuttal-long-grid");
+  grid.innerHTML = items.map((item) => `
+    <article class="video-card${item.method === "our" ? " is-ours" : ""}">
+      <video poster="${item.poster}" preload="none" playsinline aria-label="${item.label} comparison"></video>
+      <div class="video-caption"><div><h3>${item.label}</h3><p>${item.detail}</p></div></div>
+    </article>`).join("");
+
+  const videos = Array.from(grid.querySelectorAll("video"));
+  const lengths = document.querySelectorAll("#rebuttal-lengths button");
+  const play = document.querySelector("#rebuttal-play");
+  const seek = document.querySelector("#rebuttal-seek");
+  const time = document.querySelector("#rebuttal-time");
+  const audio = document.querySelector("#rebuttal-audio");
+  const status = document.querySelector("#rebuttal-playback-status");
+  const maxDuration = Math.min(...items.map((item) => item.duration));
+  let limit = Math.min(60, maxDuration);
+  let position = 0;
+  let playing = false;
+  let attempt = 0;
+  let loaded = false;
+  audio.replaceChildren(...items.map((item, index) => new Option(item.label, index)), new Option("Muted", -1));
+
+  function clock(seconds) {
+    const whole = Math.floor(seconds + 0.001);
+    return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+  }
+
+  function updateTimeline(seconds) {
+    position = Math.min(limit, Math.max(0, seconds));
+    seek.value = position;
+    time.textContent = `${clock(position)} / ${clock(limit)}`;
+    seek.setAttribute("aria-valuetext", time.textContent);
+  }
+
+  function pause() {
+    attempt += 1;
+    playing = false;
+    videos.forEach((video) => video.pause());
+    play.textContent = "Play comparison";
+  }
+
+  function jump(seconds) {
+    updateTimeline(seconds);
+    if (loaded) videos.forEach((video) => { video.currentTime = position; });
+  }
+
+  function setAudio() {
+    videos.forEach((video, index) => { video.muted = index !== Number(audio.value); });
+  }
+
+  function reportPlaybackError() {
+    pause();
+    status.textContent = "Could not play all comparison videos. Reload this page and try again.";
+    status.hidden = false;
+  }
+
+  lengths.forEach((button) => button.addEventListener("click", () => {
+    pause();
+    limit = Math.min(Number(button.dataset.seconds), maxDuration);
+    lengths.forEach((option) => option.setAttribute("aria-pressed", String(option === button)));
+    seek.max = limit;
+    jump(0);
+  }));
+  seek.max = limit;
+  seek.addEventListener("input", () => {
+    pause();
+    jump(Number(seek.value));
+  });
+  audio.addEventListener("change", setAudio);
+  videos.forEach((video, index) => {
+    video.addEventListener("timeupdate", () => {
+      if (!playing) return;
+      if (video.currentTime >= limit) {
+        pause();
+        jump(limit);
+      } else if (index === 0) {
+        updateTimeline(video.currentTime);
+        videos.slice(1).forEach((peer) => {
+          if (peer.readyState >= 2 && !peer.seeking && Math.abs(peer.currentTime - position) > 0.5) {
+            peer.currentTime = position;
+          }
+        });
+      }
+    });
+    video.addEventListener("ended", () => {
+      if (!playing) return;
+      pause();
+      jump(Math.min(video.currentTime, limit));
+    });
+    video.addEventListener("error", reportPlaybackError);
+  });
+  play.addEventListener("click", () => {
+    if (playing) {
+      pause();
+      return;
+    }
+    if (!loaded) {
+      videos.forEach((video, index) => { video.src = items[index].src; });
+      loaded = true;
+    }
+    status.hidden = true;
+    jump(position >= limit ? 0 : position);
+    setAudio();
+    playing = true;
+    play.textContent = "Pause comparison";
+    const currentAttempt = ++attempt;
+    Promise.all(videos.map((video) => video.play())).catch(() => {
+      if (currentAttempt === attempt) reportPlaybackError();
+    });
+  });
+  updateTimeline(0);
+  document.querySelector("#rebuttal-transport").hidden = false;
+}
+
 function activateVideo(button) {
   if (button.closest("#hero-carousel")) {
     heroState.videoActive = true;
@@ -287,22 +427,23 @@ function activateVideo(button) {
 }
 
 function showLoadError() {
-  const message = "The video library could not be loaded. Serve this folder through a local web server or open the published GitHub Pages URL.";
-  ["#showcase-grid", "#short-grid", "#long-grid", "#extended-video"].forEach((selector) => {
+  const message = "The video library could not be displayed. Please refresh the page.";
+  ["#showcase-grid", "#short-grid", "#long-grid", "#extended-video", "#ablation-grid", "#rebuttal-long-grid"].forEach((selector) => {
     document.querySelector(selector).innerHTML = `<div class="error-card">${message}</div>`;
   });
   document.querySelector("#showcase-status").textContent = "Video library unavailable.";
 }
 
-async function initialize() {
+function initialize() {
   try {
-    const response = await fetch("assets/videos/manifest.json");
-    if (!response.ok) throw new Error(`Video manifest request failed: ${response.status}`);
-    state.manifest = await response.json();
+    const library = document.querySelector("#video-library-data");
+    if (!library) throw new Error("Embedded video library is missing");
+    state.manifest = JSON.parse(library.textContent);
     renderShowcase();
     renderComparison("short_comparisons", state.shortCase, "#short-tabs", "#short-grid", "shortCase");
     renderComparison("long_comparisons", state.longCase, "#long-tabs", "#long-grid", "longCase");
     renderExtended();
+    renderRebuttal();
   } catch (error) {
     console.error(error);
     showLoadError();

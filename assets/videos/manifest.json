@@ -1246,5 +1246,101 @@
     "duration": 4.84,
     "width": 768,
     "height": 512
+  },
+  {
+    "group": "ablation_decouple",
+    "category": "ablation_decouple",
+    "case": null,
+    "method": "our",
+    "file": "our",
+    "src": "assets/videos/ablation_decouple/our.mp4",
+    "poster": "assets/posters/ablation_decouple/our.jpg",
+    "duration": 30.12,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "ablation_decouple",
+    "category": "ablation_decouple",
+    "case": null,
+    "method": "dmd_only",
+    "file": "dmd_only",
+    "src": "assets/videos/ablation_decouple/dmd_only.mp4",
+    "poster": "assets/posters/ablation_decouple/dmd_only.jpg",
+    "duration": 30.12,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "ablation_decouple",
+    "category": "ablation_decouple",
+    "case": null,
+    "method": "fm_only",
+    "file": "fm_only",
+    "src": "assets/videos/ablation_decouple/fm_only.mp4",
+    "poster": "assets/posters/ablation_decouple/fm_only.jpg",
+    "duration": 30.12,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "ablation_decouple",
+    "category": "ablation_decouple",
+    "case": null,
+    "method": "d2rrt",
+    "file": "d2rrt",
+    "src": "assets/videos/ablation_decouple/d2rrt.mp4",
+    "poster": "assets/posters/ablation_decouple/d2rrt.jpg",
+    "duration": 30.0,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "ablation_decouple",
+    "category": "ablation_decouple",
+    "case": null,
+    "method": "rrt2d",
+    "file": "rrt2d",
+    "src": "assets/videos/ablation_decouple/rrt2d.mp4",
+    "poster": "assets/posters/ablation_decouple/rrt2d.jpg",
+    "duration": 30.0,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "10min_compare",
+    "category": "10min_compare",
+    "case": null,
+    "method": "our",
+    "file": "our",
+    "src": "assets/videos/10min_compare/our.mp4",
+    "poster": "assets/posters/10min_compare/our.jpg",
+    "duration": 600.06,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "10min_compare",
+    "category": "10min_compare",
+    "case": null,
+    "method": "dmd_only",
+    "file": "dmd_only",
+    "src": "assets/videos/10min_compare/dmd_only.mp4",
+    "poster": "assets/posters/10min_compare/dmd_only.jpg",
+    "duration": 600.06,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "group": "10min_compare",
+    "category": "10min_compare",
+    "case": null,
+    "method": "soulx",
+    "file": "soulx",
+    "src": "assets/videos/10min_compare/soulx.mp4",
+    "poster": "assets/posters/10min_compare/soulx.jpg",
+    "duration": 600.0,
+    "width": 768,
+    "height": 512
   }
 ]

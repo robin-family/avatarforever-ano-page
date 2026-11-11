@@ -8,6 +8,8 @@ from pathlib import Path
 
 DURATION_RE = re.compile(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)")
 VIDEO_RE = re.compile(r"Video:.*?(\d{2,5})x(\d{2,5})")
+COMPARISON_GROUPS = {"short_comparisons", "long_comparisons"}
+METHOD_GROUPS = COMPARISON_GROUPS | {"ablation_decouple", "10min_compare"}
 
 
 def probe(ffmpeg: Path, video: Path):
@@ -89,8 +91,8 @@ def main():
             {
                 "group": parts[0],
                 "category": parts[1] if len(parts) > 2 else parts[0],
-                "case": parts[1] if parts[0] in {"short_comparisons", "long_comparisons"} else None,
-                "method": video.stem if parts[0] in {"short_comparisons", "long_comparisons"} else None,
+                "case": parts[1] if parts[0] in COMPARISON_GROUPS else None,
+                "method": video.stem if parts[0] in METHOD_GROUPS else None,
                 "file": video.stem,
                 "src": "assets/videos/" + relative.as_posix(),
                 "poster": "assets/posters/" + poster_relative.as_posix(),
